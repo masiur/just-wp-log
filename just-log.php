@@ -113,13 +113,28 @@ class JustLog {
             
             <div class="jhl-log-controls">
                 <div class="jhl-search-box">
-                    <input type="search" id="jhl-log-search" placeholder="Search logs..." value="">
-                    <button id="jhl-search-logs" class="button jhl-button button-primary">Search</button>
-                    <button id="jhl-reset-search" class="button jhl-button button-secondary">Reset Search</button>
+                    <div class="jhl-search-icon-wrapper">
+                        <span class="jhl-search-icon dashicons dashicons-search"></span>
+                        <input type="search" id="jhl-log-search" placeholder="Search logs..." value="">
+                    </div>
+                    <button id="jhl-search-logs" class="button jhl-button button-primary">
+                        <span class="dashicons dashicons-search"></span>
+                        Search
+                    </button>
+                    <button id="jhl-reset-search" class="button jhl-button">
+                        <span class="dashicons dashicons-dismiss"></span>
+                        Reset
+                    </button>
                 </div>
                 <div class="jhl-action-buttons">
-                    <button id="jhl-refresh-logs" class="button jhl-button jhl-button-refresh">Refresh</button>
-                    <button id="jhl-clear-logs" class="button jhl-button jhl-button-danger">Reset Logs</button>
+                    <button id="jhl-refresh-logs" class="button jhl-button jhl-button-refresh">
+                        <span class="dashicons dashicons-update"></span>
+                        Refresh
+                    </button>
+                    <button id="jhl-clear-logs" class="button jhl-button jhl-button-danger">
+                        <span class="dashicons dashicons-trash"></span>
+                        Reset Logs
+                    </button>
                 </div>
             </div>
             <div class="jhl-log-view-container">
