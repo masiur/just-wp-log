@@ -58,10 +58,13 @@ function just_log(...$data) {
         'class' => isset($caller1['class']) ? $caller1['class'] : 'N/A',
     ];
     
+    // Get current timezone and timestamp
+    $timezone = wp_timezone()->getName();
+    $timestamp = current_time('mysql');
+    
     // Insert log into database
-    $timestamp = date('Y-m-d H:i:s');
     $message = implode(PHP_EOL, $logMessages);
-    $db->insert_log($timestamp, $message, $calledBy);
+    $db->insert_log($timestamp, $message, $calledBy, $timezone);
 }
 
 class JustLog {

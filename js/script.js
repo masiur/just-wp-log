@@ -108,6 +108,9 @@
                 if (response.success) {
                     $('#jhl-log-container').html(response.data.html);
                     
+                    // Convert UTC timestamps to local time
+                    convertTimestampsToLocal();
+                    
                     // Re-attach event listeners to the newly loaded pagination links
                     attachPaginationListeners();
                 } else {
@@ -118,6 +121,37 @@
                 $('#jhl-log-container').html('<div class="notice notice-error"><p>Error loading logs</p></div>');
             }
         });
+    }
+    
+    // Convert UTC timestamps to local browser time
+    function convertTimestampsToLocal() {
+        $('.jhl-log-time-local').each(function() {
+            const utcTimestamp = parseInt($(this).data('timestamp'));
+            if (!isNaN(utcTimestamp)) {
+                const date = new Date(utcTimestamp * 1000);
+                const localTimeStr = formatLocalTime(date);
+                $(this).html('Local: ' + localTimeStr);
+            }
+        });
+    }
+    
+    // Format local time
+    function formatLocalTime(date) {
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        
+        const month = months[date.getMonth()];
+        const day = date.getDate();
+        const year = date.getFullYear();
+        
+        let hours = date.getHours();
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        const seconds = String(date.getSeconds()).padStart(2, '0');
+        
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12;
+        hours = hours ? hours : 12; // Convert hour '0' to '12'
+        
+        return `${month} ${day}, ${year} ${hours}:${minutes}:${seconds} ${ampm}`;
     }
     
     function renderPagination(currentPage, totalPages) {

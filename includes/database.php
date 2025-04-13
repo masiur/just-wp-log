@@ -24,28 +24,38 @@ class JustLogDatabase {
         
         $sql = "CREATE TABLE IF NOT EXISTS {$this->table_name} (
             id bigint(20) NOT NULL AUTO_INCREMENT,
-            timestamp datetime NOT NULL,
+            timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            timezone varchar(50) NOT NULL DEFAULT 'UTC',
             message longtext NOT NULL,
             meta_data longtext NOT NULL,
-            PRIMARY KEY (id)
+            PRIMARY KEY (id),
+            KEY timestamp_idx (timestamp)
         ) $charset_collate;";
         
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
         dbDelta($sql);
+        
+        // Check if timezone column exists, if not add it
+        $check_column = $this->wpdb->get_results("SHOW COLUMNS FROM {$this->table_name} LIKE 'timezone'");
+        if (empty($check_column)) {
+            $this->wpdb->query("ALTER TABLE {$this->table_name} ADD COLUMN timezone varchar(50) NOT NULL DEFAULT 'UTC' AFTER timestamp");
+        }
     }
     
     /**
      * Insert a log entry
      */
-    public function insert_log($timestamp, $message, $meta_data) {
+    public function insert_log($timestamp, $message, $meta_data, $timezone = 'UTC') {
         $this->wpdb->insert(
             $this->table_name,
             array(
                 'timestamp' => $timestamp,
+                'timezone' => $timezone,
                 'message' => $message,
                 'meta_data' => json_encode($meta_data)
             ),
             array(
+                '%s',
                 '%s',
                 '%s',
                 '%s'

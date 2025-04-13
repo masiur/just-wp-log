@@ -150,6 +150,39 @@
     font-size: 14px;
 }
 
+.jhl-log-time {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-weight: 500;
+}
+
+.jhl-log-time-diff, .jhl-log-time-local {
+    font-size: 0.85em;
+    opacity: 0.8;
+    font-weight: normal;
+    font-style: italic;
+    color: #666;
+}
+
+.jhl-log-time-local {
+    margin-left: 10px;
+    color: #0c5460;
+    background-color: #d1ecf1;
+    border-radius: 3px;
+    padding: 1px 5px;
+    font-size: 0.8em;
+}
+
+.jhl-log-time-diff {
+    font-size: 0.85em;
+    opacity: 0.8;
+    font-weight: normal;
+    font-style: italic;
+    color: #666;
+}
+
 /* Code styling for variables */
 .jhl-log-content {
     background: #f6f8fa;

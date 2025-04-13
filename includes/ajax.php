@@ -90,10 +90,21 @@ class JustLogAjax {
             $function = isset($meta['function']) ? $meta['function'] : 'N/A';
             $class = isset($meta['class']) ? $meta['class'] : '';
             
-            $formatted_date = date('M j, Y H:i:s', strtotime($log->timestamp));
+            // Convert timestamp to datetime with proper timezone
+            $timezone = new DateTimeZone(!empty($log->timezone) ? $log->timezone : 'UTC');
+            $datetime = new DateTime($log->timestamp, $timezone);
+            $datetime->setTimezone(wp_timezone()); // Convert to site's timezone
+            
+            $formatted_date = $datetime->format('M j, Y H:i:s');
+            $timestamp_utc = $datetime->setTimezone(new DateTimeZone('UTC'))->getTimestamp();
+            
+            // Get human time diff
+            $human_time_diff = $this->get_human_time_diff_from_datetime($datetime);
             
             $html .= '<div class="jhl-log-entry">';
-            $html .= '<div class="jhl-log-time">' . esc_html($formatted_date) . '</div>';
+            $html .= '<div class="jhl-log-time">' . esc_html($formatted_date) . 
+                     ' <span class="jhl-log-time-diff">(' . esc_html($human_time_diff) . ')</span>' . 
+                     '<span class="jhl-log-time-local" data-timestamp="' . $timestamp_utc . '"></span></div>';
             
             if ($class) {
                 $html .= '<div class="jhl-log-meta">From: ' . esc_html($class . '::' . $function) . '() at ' . esc_html(basename($file)) . ':' . esc_html($line) . '</div>';
@@ -183,5 +194,55 @@ class JustLogAjax {
         $html .= '<div class="jhl-results-count">Showing '. count($logs) .' of '. $total .' log entries</div>';
         
         return $html;
+    }
+    
+    /**
+     * Get human readable time difference from a DateTime object
+     */
+    private function get_human_time_diff_from_datetime($datetime) {
+        $now = new DateTime('now', wp_timezone());
+        $timestamp = $datetime->getTimestamp();
+        $now_timestamp = $now->getTimestamp();
+        
+        if ($timestamp > $now_timestamp) {
+            // Future time (rare case, maybe timezone issues)
+            $diff = $timestamp - $now_timestamp;
+            if ($diff < 60) {
+                return 'in a few seconds';
+            } elseif ($diff < 3600) {
+                $mins = round($diff / 60);
+                return 'in ' . $mins . ' ' . ($mins == 1 ? 'minute' : 'minutes');
+            } elseif ($diff < 86400) {
+                $hours = round($diff / 3600);
+                return 'in ' . $hours . ' ' . ($hours == 1 ? 'hour' : 'hours');
+            } else {
+                $days = round($diff / 86400);
+                return 'in ' . $days . ' ' . ($days == 1 ? 'day' : 'days');
+            }
+        } else {
+            // Past time (normal case)
+            $diff = $now_timestamp - $timestamp;
+            if ($diff < 60) {
+                return 'just now';
+            } elseif ($diff < 3600) {
+                $mins = round($diff / 60);
+                return $mins . ' ' . ($mins == 1 ? 'minute' : 'minutes') . ' ago';
+            } elseif ($diff < 86400) {
+                $hours = round($diff / 3600);
+                return $hours . ' ' . ($hours == 1 ? 'hour' : 'hours') . ' ago';
+            } elseif ($diff < 604800) { // 7 days
+                $days = round($diff / 86400);
+                return $days . ' ' . ($days == 1 ? 'day' : 'days') . ' ago';
+            } elseif ($diff < 2592000) { // 30 days
+                $weeks = round($diff / 604800);
+                return $weeks . ' ' . ($weeks == 1 ? 'week' : 'weeks') . ' ago';
+            } elseif ($diff < 31536000) { // 365 days
+                $months = round($diff / 2592000);
+                return $months . ' ' . ($months == 1 ? 'month' : 'months') . ' ago';
+            } else {
+                $years = round($diff / 31536000);
+                return $years . ' ' . ($years == 1 ? 'year' : 'years') . ' ago';
+            }
+        }
     }
 }
