@@ -14,6 +14,10 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+define('JUST_LOG_PLUGIN_VERSION', '1.0');
+define('JUST_LOG_PLUGIN_DIR', plugin_dir_path(__FILE__));
+define('JUST_LOG_PLUGIN_URL', plugin_dir_url(__FILE__));
+
 // Include required files
 require_once plugin_dir_path(__FILE__) . 'includes/database.php';
 require_once plugin_dir_path(__FILE__) . 'includes/ajax.php';
@@ -71,6 +75,8 @@ class JustLog {
         
         add_action('admin_menu', array($this, 'add_admin_menu'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_assets'));
+
+        $this->changeFooter();
     }
     
     public function add_admin_menu() {
@@ -138,11 +144,32 @@ class JustLog {
                 </button>
             </div>
             
-            <div class="jhl-footer">
+            <!-- <div class="jhl-footer">
                 Just Log v1.1.0 | Created with <span style="color: #e25555;">♥</span> by Masiur
-            </div>
+            </div> -->
         </div>
         <?php
+    }
+
+    public function changeFooter()
+    {
+        add_filter('admin_footer_text', function ($content) {
+            $url = 'https://MasiurSiddiki.com';
+            $url = esc_url($url);   
+        
+
+            if (defined('JUST_LOG_PLUGIN_VERSION')) {
+                return 'Just Log | Created with <span style="color: #e25555;">♥</span> by <a href="https://MasiurSiddiki.com" target="_blank">Masiur Rahman Siddiki</a>';
+            }
+            return $content;
+        });
+
+        add_filter('update_footer', function ($text) {
+            if (defined('JUST_LOG_PLUGIN_VERSION')) {
+                return JUST_LOG_PLUGIN_VERSION;
+            }
+            return '';
+        });
     }
 }
 

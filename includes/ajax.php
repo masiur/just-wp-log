@@ -117,7 +117,7 @@ class JustLogAjax {
             
             // Previous page
             if ($current_page > 1) {
-                $html .= '<a href="?jhlpage='. ($current_page - 1) . ($search ? '&jhlsearch=' . urlencode($search) : '') .'" class="jhl-page-numbers prev" data-page="'. ($current_page - 1) .'" aria-label="Previous page">« Prev</a>';
+                $html .= '<a href="javascript:void(0);" class="jhl-page-numbers prev" data-page="'. ($current_page - 1) .'" aria-label="Previous page">« Prev</a>';
             } else {
                 $html .= '<span class="jhl-page-numbers prev disabled" aria-disabled="true">« Prev</span>';
             }
@@ -127,7 +127,7 @@ class JustLogAjax {
             if ($current_page === 1) {
                 $html .= '<span class="jhl-page-numbers '. $firstPageClass .'" aria-current="page">1</span>';
             } else {
-                $html .= '<a href="?jhlpage=1'. ($search ? '&jhlsearch=' . urlencode($search) : '') .'" class="jhl-page-numbers" data-page="1">1</a>';
+                $html .= '<a href="javascript:void(0);" class="jhl-page-numbers" data-page="1">1</a>';
             }
             
             // Ellipsis after first page
@@ -145,7 +145,7 @@ class JustLogAjax {
                 if ($i === $current_page) {
                     $html .= '<span class="jhl-page-numbers current" aria-current="page">'. $i .'</span>';
                 } else {
-                    $html .= '<a href="?jhlpage='. $i . ($search ? '&jhlsearch=' . urlencode($search) : '') .'" class="jhl-page-numbers" data-page="'. $i .'">'. $i .'</a>';
+                    $html .= '<a href="javascript:void(0);" class="jhl-page-numbers" data-page="'. $i .'">'. $i .'</a>';
                 }
             }
             
@@ -160,13 +160,13 @@ class JustLogAjax {
                 if ($current_page === $total_pages) {
                     $html .= '<span class="jhl-page-numbers '. $lastPageClass .'" aria-current="page">'. $total_pages .'</span>';
                 } else {
-                    $html .= '<a href="?jhlpage='. $total_pages . ($search ? '&jhlsearch=' . urlencode($search) : '') .'" class="jhl-page-numbers" data-page="'. $total_pages .'">'. $total_pages .'</a>';
+                    $html .= '<a href="javascript:void(0);" class="jhl-page-numbers" data-page="'. $total_pages .'">'. $total_pages .'</a>';
                 }
             }
             
             // Next page
             if ($current_page < $total_pages) {
-                $html .= '<a href="?jhlpage='. ($current_page + 1) . ($search ? '&jhlsearch=' . urlencode($search) : '') .'" class="jhl-page-numbers next" data-page="'. ($current_page + 1) .'" aria-label="Next page">Next »</a>';
+                $html .= '<a href="javascript:void(0);" class="jhl-page-numbers next" data-page="'. ($current_page + 1) .'" aria-label="Next page">Next »</a>';
             } else {
                 $html .= '<span class="jhl-page-numbers next disabled" aria-disabled="true">Next »</span>';
             }

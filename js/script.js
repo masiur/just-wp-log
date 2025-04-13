@@ -42,19 +42,24 @@
     // Update URL query parameters without page reload
     function updateUrlParams(page, search) {
         const url = new URL(window.location.href);
+        const currentParams = new URLSearchParams(url.search);
+        
+        // Maintain the plugin page parameter
+        currentParams.set('page', 'just-log-viewer');
         
         if (page && page > 1) {
-            url.searchParams.set('jhlpage', page);
+            currentParams.set('jhlpage', page);
         } else {
-            url.searchParams.delete('jhlpage');
+            currentParams.delete('jhlpage');
         }
         
         if (search && search.trim() !== '') {
-            url.searchParams.set('jhlsearch', search);
+            currentParams.set('jhlsearch', search);
         } else {
-            url.searchParams.delete('jhlsearch');
+            currentParams.delete('jhlsearch');
         }
         
+        url.search = currentParams.toString();
         window.history.pushState({page, search}, '', url);
     }
 
@@ -70,7 +75,14 @@
         };
     }
     
-    function loadLogs(page = 1, search = '') {
+    function loadLogs(page = null, search = null) {
+        // If parameters are null, try to get from URL
+        if (page === null || search === null) {
+            const params = getUrlParams();
+            if (page === null) page = params.page;
+            if (search === null) search = params.search;
+        }
+        
         currentPage = page;
         currentSearch = search;
         
@@ -105,6 +117,100 @@
             error: function() {
                 $('#jhl-log-container').html('<div class="notice notice-error"><p>Error loading logs</p></div>');
             }
+        });
+    }
+    
+    function renderPagination(currentPage, totalPages) {
+        const paginationContainer = document.querySelector('.jhl-pagination-container');
+        const pageInfoContainer = document.querySelector('.jhl-page-info');
+        const pageInput = document.getElementById('jhl-page-input');
+        
+        if (!paginationContainer) return;
+        
+        // Update page input and info
+        if (pageInput) {
+            pageInput.setAttribute('max', totalPages);
+            pageInput.setAttribute('placeholder', `1-${totalPages}`);
+            pageInput.value = ''; // Reset input
+        }
+        
+        if (pageInfoContainer) {
+            pageInfoContainer.innerHTML = `Page ${currentPage} of ${totalPages}`;
+        }
+        
+        let paginationHTML = '';
+        
+        // Previous button
+        if (currentPage > 1) {
+            paginationHTML += `<a href="javascript:void(0);" class="jhl-page-numbers prev" data-page="${currentPage - 1}">« Prev</a>`;
+        } else {
+            paginationHTML += `<span class="jhl-page-numbers prev disabled">« Prev</span>`;
+        }
+        
+        // First page always visible
+        const firstPageClass = currentPage === 1 ? 'current' : '';
+        if (currentPage === 1) {
+            paginationHTML += `<span class="jhl-page-numbers ${firstPageClass}">${1}</span>`;
+        } else {
+            paginationHTML += `<a href="javascript:void(0);" class="jhl-page-numbers" data-page="1">1</a>`;
+        }
+        
+        // Ellipsis after first page
+        if (currentPage > 4) {
+            paginationHTML += `<span class="jhl-page-numbers dots">…</span>`;
+        }
+        
+        // Pages around current page
+        const startPage = Math.max(2, currentPage - 2);
+        const endPage = Math.min(totalPages - 1, currentPage + 2);
+        
+        for (let i = startPage; i <= endPage; i++) {
+            if (i === 1 || i === totalPages) continue; // Skip first and last pages as they're always shown
+            
+            if (i === currentPage) {
+                paginationHTML += `<span class="jhl-page-numbers current">${i}</span>`;
+            } else {
+                paginationHTML += `<a href="javascript:void(0);" class="jhl-page-numbers" data-page="${i}">${i}</a>`;
+            }
+        }
+        
+        // Ellipsis before last page
+        if (currentPage < totalPages - 3) {
+            paginationHTML += `<span class="jhl-page-numbers dots">…</span>`;
+        }
+        
+        // Last page always visible if more than one page
+        if (totalPages > 1) {
+            const lastPageClass = currentPage === totalPages ? 'current' : '';
+            if (currentPage === totalPages) {
+                paginationHTML += `<span class="jhl-page-numbers ${lastPageClass}">${totalPages}</span>`;
+            } else {
+                paginationHTML += `<a href="javascript:void(0);" class="jhl-page-numbers" data-page="${totalPages}">${totalPages}</a>`;
+            }
+        }
+        
+        // Next button
+        if (currentPage < totalPages) {
+            paginationHTML += `<a href="javascript:void(0);" class="jhl-page-numbers next" data-page="${currentPage + 1}">Next »</a>`;
+        } else {
+            paginationHTML += `<span class="jhl-page-numbers next disabled">Next »</span>`;
+        }
+        
+        paginationContainer.innerHTML = paginationHTML;
+        
+        // Add event listeners to pagination links
+        $('.jhl-pagination-container .jhl-page-numbers').off('click').on('click', function(e) {
+            if ($(this).hasClass('disabled') || $(this).hasClass('dots') || $(this).hasClass('current')) {
+                e.preventDefault();
+                return false;
+            }
+            
+            e.preventDefault();
+            const page = parseInt($(this).data('page'));
+            if (!isNaN(page)) {
+                loadLogs(page, currentSearch);
+            }
+            return false;
         });
     }
     
