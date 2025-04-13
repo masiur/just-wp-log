@@ -1,19 +1,20 @@
 # Just Log
 
-A simple, lightweight and efficient logging solution for WordPress with SQLite storage and real-time search capabilities.
+A simple, lightweight and efficient logging solution for WordPress with easy-to-use interface and real-time search capabilities.
 
 ## Description
 
-Just Log makes debugging WordPress applications easier by providing a clean interface to view, search, and manage logs. Instead of digging through server logs, Just Log stores everything in a SQLite database for fast access and efficient storage.
+Just Log makes debugging WordPress applications easier by providing a clean interface to view, search, and manage logs. It uses your existing WordPress database for storage, ensuring maximum compatibility with all WordPress installations.
 
 ### Key Features
 
-- **Lightweight Storage**: Uses SQLite for efficient, file-based database storage
+- **WordPress Database Integration**: Uses your existing MySQL database for reliable storage
 - **Real-time Search**: Quickly find logs using the built-in search functionality
 - **Clean Interface**: Modern UI that integrates with WordPress admin
 - **Contextual Logging**: Automatically captures file, line number, and function details
 - **JSON Formatting**: Pretty prints JSON data for better readability
 - **Easy Cleanup**: Clear logs with a single click when you're done debugging
+- **Universal Compatibility**: Works with any WordPress installation without additional extensions
 
 ## Installation
 
@@ -39,13 +40,13 @@ just_log('User details:', $user, 'Process completed');
 1. Navigate to the "Just Log" menu in your WordPress admin
 2. Use the search box to filter logs by content
 3. Click on JSON data to expand/collapse objects
-4. Use the scroll buttons to navigate through large log sets
+4. Use the floating scroll buttons to navigate through large log sets
 
 ## Requirements
 
 - WordPress 5.0 or higher
 - PHP 7.2 or higher
-- SQLite extension for PHP
+- No special extensions needed!
 
 ## Development
 
@@ -57,4 +58,4 @@ GPL v2 or later
 
 ## Credits
 
-Created by Masiur Rahman Siddiki (www.MasiurSiddiki.com)
+Created by Masiur Siddiki (www.MasiurSiddiki.com)

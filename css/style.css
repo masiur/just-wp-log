@@ -1,4 +1,4 @@
-.log-controls {
+.jhl-log-controls {
     margin: 20px 0;
     display: flex;
     gap: 15px;
@@ -7,7 +7,7 @@
     width: 100%;
 }
 
-.search-box {
+.jhl-search-box {
     flex: 1;
     display: flex;
     gap: 10px;
@@ -15,21 +15,21 @@
     order: 1;
 }
 
-.search-box input[type="search"], .search-box input[type="text"] {
+.jhl-search-box input[type="search"], .jhl-search-box input[type="text"] {
     flex: 1;
     min-width: 300px;
     height: 36px;
     border-radius: 4px;
 }
 
-.action-buttons {
+.jhl-action-buttons {
     display: flex;
     gap: 10px;
     align-items: center;
     order: 2;
 }
 
-.button {
+.jhl-button {
     height: 36px;
     line-height: 34px;
     padding: 0 15px;
@@ -38,34 +38,34 @@
     transition: all 0.2s ease;
 }
 
-#search-logs {
+#jhl-search-logs {
     min-width: 80px;
 }
 
-#reset-search {
+#jhl-reset-search {
     order: 3;
 }
 
-.button-refresh {
+.jhl-button-refresh {
     background-color: #4CAF50;
     border-color: #4CAF50;
     color: #fff;
 }
 
-.button-danger {
+.jhl-button-danger {
     background-color: #d63638;
     border-color: #d63638;
     color: #fff;
 }
 
-.button:hover {
+.jhl-button:hover {
     opacity: 0.9;
     transform: translateY(-1px);
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 /* Simplified log container styles */
-#log-container {
+#jhl-log-container {
     margin-top: 20px;
     min-height: calc(100vh - 250px);
     background: #fff;
@@ -76,14 +76,14 @@
     box-sizing: border-box;
 }
 
-.scroll-buttons {
+.jhl-scroll-buttons {
     margin-top: 15px;
     display: flex;
     justify-content: center;
     gap: 10px;
 }
 
-.just-log-footer {
+.jhl-footer {
     margin-top: 20px;
     text-align: center;
     color: #666;
@@ -93,18 +93,18 @@
     width: 100%;
 }
 
-.just-log-footer a {
+.jhl-footer a {
     color: #2271b1;
     text-decoration: none;
 }
 
-.just-log-footer a:hover {
+.jhl-footer a:hover {
     color: #135e96;
     text-decoration: underline;
 }
 
 /* Card styling */
-.log-entry.card {
+.jhl-log-entry {
     border: 1px solid #e2e4e7;
     border-radius: 8px;
     padding: 15px;
@@ -115,17 +115,17 @@
     box-sizing: border-box;
 }
 
-.log-entry.card:hover {
+.jhl-log-entry:hover {
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
-.log-time, .log-meta {
+.jhl-log-time, .jhl-log-meta {
     margin-bottom: 8px;
     font-size: 14px;
 }
 
 /* Code styling for variables */
-.log-content {
+.jhl-log-content {
     background: #f6f8fa;
     border: 1px solid #e1e4e8;
     border-radius: 6px;
@@ -138,32 +138,32 @@
 }
 
 /* JSON styling */
-.json-array, .json-object {
+.jhl-json-array, .jhl-json-object {
     font-family: monospace;
 }
 
-.json-key {
+.jhl-json-key {
     color: #0550ae;
     font-weight: bold;
 }
 
-.json-string {
+.jhl-json-string {
     color: #24292e;
 }
 
-.json-number {
+.jhl-json-number {
     color: #005cc5;
 }
 
-.json-boolean {
+.jhl-json-boolean {
     color: #d73a49;
 }
 
-.json-null {
+.jhl-json-null {
     color: #6a737d;
 }
 
-.json-toggle {
+.jhl-json-toggle {
     background: none;
     border: none;
     color: #586069;
@@ -172,12 +172,12 @@
     padding: 0 4px;
 }
 
-.json-content {
+.jhl-json-content {
     padding-left: 20px;
 }
 
 /* Floating scroll button styles */
-.floating-scroll {
+.jhl-floating-scroll {
     position: fixed;
     bottom: 30px;
     right: 30px;
@@ -187,7 +187,7 @@
     gap: 10px;
 }
 
-.floating-scroll button {
+.jhl-floating-scroll button {
     width: 44px;
     height: 44px;
     border-radius: 50%;
@@ -203,21 +203,121 @@
     opacity: 0.85;
 }
 
-.floating-scroll button:hover {
+.jhl-floating-scroll button:hover {
     transform: translateY(-3px);
     opacity: 1;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
 
-.floating-scroll button svg {
+.jhl-floating-scroll button svg {
     width: 20px;
     height: 20px;
     fill: currentColor;
 }
 
 @media screen and (max-width: 782px) {
-    .floating-scroll {
+    .jhl-floating-scroll {
         bottom: 20px;
         right: 20px;
     }
+}
+
+/* Pagination */
+.jhl-pagination-wrapper {
+    margin: 30px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.jhl-pagination-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+}
+
+.jhl-pagination-container .jhl-page-numbers {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 38px;
+    height: 38px;
+    padding: 0 10px;
+    margin: 0 2px;
+    border-radius: 4px;
+    background: #f0f0f1;
+    color: #3c434a;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    border: 1px solid #dcdcde;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+
+.jhl-pagination-container .jhl-page-numbers:hover {
+    background: #e0e0e1;
+    color: #2271b1;
+    z-index: 1;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+}
+
+.jhl-pagination-container .jhl-page-numbers.current {
+    background: #2271b1;
+    color: white;
+    border-color: #135e96;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    position: relative;
+    z-index: 2;
+}
+
+.jhl-pagination-container .jhl-page-numbers.prev,
+.jhl-pagination-container .jhl-page-numbers.next {
+    padding: 0 12px;
+    font-weight: bold;
+}
+
+.jhl-pagination-container .jhl-page-numbers.dots {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+.jhl-go-to-page {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.jhl-go-to-page input {
+    width: 60px;
+    height: 38px;
+    padding: 5px;
+    border-radius: 4px;
+    border: 1px solid #dcdcde;
+    text-align: center;
+}
+
+.jhl-go-to-page button {
+    height: 38px;
+    padding: 0 12px;
+    border-radius: 4px;
+    background: #2271b1;
+    color: white;
+    border: 1px solid #135e96;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.jhl-go-to-page button:hover {
+    background: #135e96;
+}
+
+.jhl-page-info {
+    color: #666;
+    font-size: 13px;
+    margin: 0 10px;
 }

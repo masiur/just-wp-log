@@ -1,127 +1,100 @@
 <?php
-if (!defined('ABSPATH')) {
-    exit;
-}
+/**
+ * Database handler for Just Log
+ * Uses WordPress database instead of SQLite for better compatibility
+ */
 
 class JustLogDatabase {
-    private $db;
-    private $db_file;
+    private $wpdb;
+    private $table_name;
     
     public function __construct() {
-        $this->db_file = WP_CONTENT_DIR . '/jl.db';
-        $this->init_db();
+        global $wpdb;
+        $this->wpdb = $wpdb;
+        $this->table_name = $wpdb->prefix . 'just_log_entries';
+        
+        $this->create_table_if_not_exists();
     }
     
-    private function init_db() {
-        try {
-            $this->db = new SQLite3($this->db_file);
-            $this->db->exec('
-                CREATE TABLE IF NOT EXISTS logs (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    timestamp TEXT,
-                    message TEXT,
-                    file TEXT,
-                    line INTEGER,
-                    function TEXT,
-                    class TEXT,
-                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-                )
-            ');
-        } catch (Exception $e) {
-            error_log('SQLite error: ' . $e->getMessage());
-        }
+    /**
+     * Create the logs table if it doesn't exist
+     */
+    private function create_table_if_not_exists() {
+        $charset_collate = $this->wpdb->get_charset_collate();
+        
+        $sql = "CREATE TABLE IF NOT EXISTS {$this->table_name} (
+            id bigint(20) NOT NULL AUTO_INCREMENT,
+            timestamp datetime NOT NULL,
+            message longtext NOT NULL,
+            meta_data longtext NOT NULL,
+            PRIMARY KEY (id)
+        ) $charset_collate;";
+        
+        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+        dbDelta($sql);
     }
     
-    public function insert_log($timestamp, $message, $caller) {
-        try {
-            $stmt = $this->db->prepare('
-                INSERT INTO logs (timestamp, message, file, line, function, class)
-                VALUES (:timestamp, :message, :file, :line, :function, :class)
-            ');
-            
-            $stmt->bindValue(':timestamp', $timestamp, SQLITE3_TEXT);
-            $stmt->bindValue(':message', $message, SQLITE3_TEXT);
-            $stmt->bindValue(':file', $caller['file'], SQLITE3_TEXT);
-            $stmt->bindValue(':line', $caller['line'], SQLITE3_INTEGER);
-            $stmt->bindValue(':function', $caller['function'], SQLITE3_TEXT);
-            $stmt->bindValue(':class', $caller['class'], SQLITE3_TEXT);
-            
-            return $stmt->execute();
-        } catch (Exception $e) {
-            error_log('SQLite insert error: ' . $e->getMessage());
-            return false;
-        }
+    /**
+     * Insert a log entry
+     */
+    public function insert_log($timestamp, $message, $meta_data) {
+        $this->wpdb->insert(
+            $this->table_name,
+            array(
+                'timestamp' => $timestamp,
+                'message' => $message,
+                'meta_data' => json_encode($meta_data)
+            ),
+            array(
+                '%s',
+                '%s',
+                '%s'
+            )
+        );
+        
+        return $this->wpdb->insert_id;
     }
     
+    /**
+     * Get logs with pagination and search
+     */
     public function get_logs($page = 1, $per_page = 10, $search = '') {
-        try {
-            $offset = ($page - 1) * $per_page;
-            
-            // Count total matching records
-            if (!empty($search)) {
-                $count_stmt = $this->db->prepare('
-                    SELECT COUNT(*) as total FROM logs 
-                    WHERE message LIKE :search 
-                    OR file LIKE :search 
-                    OR function LIKE :search 
-                    OR class LIKE :search
-                ');
-                $count_stmt->bindValue(':search', '%' . $search . '%', SQLITE3_TEXT);
-            } else {
-                $count_stmt = $this->db->prepare('SELECT COUNT(*) as total FROM logs');
-            }
-            
-            $count_result = $count_stmt->execute();
-            $total = $count_result->fetchArray(SQLITE3_ASSOC)['total'];
-            
-            // Get paginated results
-            if (!empty($search)) {
-                $stmt = $this->db->prepare('
-                    SELECT * FROM logs 
-                    WHERE message LIKE :search 
-                    OR file LIKE :search 
-                    OR function LIKE :search 
-                    OR class LIKE :search
-                    ORDER BY id DESC LIMIT :limit OFFSET :offset
-                ');
-                $stmt->bindValue(':search', '%' . $search . '%', SQLITE3_TEXT);
-                $stmt->bindValue(':limit', $per_page, SQLITE3_INTEGER);
-                $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
-            } else {
-                $stmt = $this->db->prepare('
-                    SELECT * FROM logs 
-                    ORDER BY id DESC LIMIT :limit OFFSET :offset
-                ');
-                $stmt->bindValue(':limit', $per_page, SQLITE3_INTEGER);
-                $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
-            }
-            
-            $result = $stmt->execute();
-            
-            $logs = [];
-            while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-                $logs[] = $row;
-            }
-            
-            return [
-                'entries' => $logs,
-                'total' => $total
-            ];
-        } catch (Exception $e) {
-            error_log('SQLite query error: ' . $e->getMessage());
-            return [
-                'entries' => [],
-                'total' => 0
-            ];
+        $offset = ($page - 1) * $per_page;
+        
+        $sql = "SELECT * FROM {$this->table_name}";
+        $count_sql = "SELECT COUNT(*) FROM {$this->table_name}";
+        
+        if (!empty($search)) {
+            $search = '%' . $this->wpdb->esc_like($search) . '%';
+            $sql .= $this->wpdb->prepare(" WHERE message LIKE %s OR meta_data LIKE %s", $search, $search);
+            $count_sql .= $this->wpdb->prepare(" WHERE message LIKE %s OR meta_data LIKE %s", $search, $search);
         }
+        
+        $sql .= " ORDER BY timestamp DESC LIMIT %d OFFSET %d";
+        $query = $this->wpdb->prepare($sql, $per_page, $offset);
+        
+        $results = $this->wpdb->get_results($query);
+        $total = $this->wpdb->get_var($count_sql);
+        
+        return array(
+            'logs' => $results,
+            'total' => $total
+        );
     }
     
+    /**
+     * Clear all logs
+     */
     public function clear_logs() {
-        try {
-            return $this->db->exec('DELETE FROM logs');
-        } catch (Exception $e) {
-            error_log('SQLite clear error: ' . $e->getMessage());
-            return false;
-        }
+        return $this->wpdb->query("TRUNCATE TABLE {$this->table_name}");
+    }
+    
+    /**
+     * Get log by ID
+     */
+    public function get_log($id) {
+        return $this->wpdb->get_row(
+            $this->wpdb->prepare("SELECT * FROM {$this->table_name} WHERE id = %d", $id)
+        );
     }
 }

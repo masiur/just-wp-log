@@ -1,27 +1,28 @@
 === Just Log ===
 Contributors: masiur
-Tags: logging, debug, developer, sqlite, tool
+Tags: logging, debug, developer, mysql, tool
 Requires at least: 5.0
 Tested up to: 6.4
-Stable tag: 1.0
+Stable tag: 1.0.0
 Requires PHP: 7.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-A simple, lightweight and efficient logging solution for WordPress with SQLite storage and real-time search capabilities.
+A simple, lightweight and efficient logging solution for WordPress with built-in log viewer and real-time search capabilities.
 
 == Description ==
 
-Just Log makes debugging WordPress applications easier by providing a clean interface to view, search, and manage logs. Instead of digging through server logs, Just Log stores everything in a SQLite database for fast access and efficient storage.
+Just Log makes debugging WordPress applications easier by providing a clean interface to view, search, and manage logs. It uses your existing WordPress database for storage, ensuring maximum compatibility with all WordPress installations.
 
 = Key Features =
 
-* **Lightweight Storage**: Uses SQLite for efficient, file-based database storage
+* **WordPress Database Integration**: Uses your existing MySQL database for reliable storage
 * **Real-time Search**: Quickly find logs using the built-in search functionality
 * **Clean Interface**: Modern UI that integrates with WordPress admin
 * **Contextual Logging**: Automatically captures file, line number, and function details
 * **JSON Formatting**: Pretty prints JSON data for better readability
 * **Easy Cleanup**: Clear logs with a single click when you're done debugging
+* **Universal Compatibility**: Works with any WordPress installation without additional extensions
 
 = Use Cases =
 
@@ -46,7 +47,7 @@ The `just_log()` function works with any data type you throw at it. It can handl
 
 = Does this plugin affect site performance? =
 
-Just Log is designed to be lightweight and only consumes resources when actively logging. The SQLite database provides efficient storage without the overhead of using your main WordPress database tables.
+Just Log is designed to be lightweight and only consumes resources when actively logging. It creates a separate table in your WordPress database to store logs efficiently.
 
 = Can I use this on a production site? =
 
@@ -54,11 +55,11 @@ Yes, but we recommend using it primarily for development and debugging purposes.
 
 = Where are the logs stored? =
 
-The logs are stored in a SQLite database file within the plugin directory. This keeps logging data separate from your WordPress database.
+The logs are stored in a dedicated table in your WordPress database. This makes the plugin compatible with all WordPress installations.
 
-= Is SQLite required on my server? =
+= Are there any special requirements for this plugin? =
 
-Yes, your PHP installation needs to have the SQLite extension enabled. Most modern hosting environments have this enabled by default.
+No! Just Log works with any standard WordPress installation without requiring any special PHP extensions.
 
 = Can I export the logs? =
 
