@@ -1,0 +1,92 @@
+# Copyright (C) 2023 Masiur Rahman Siddiki
+# This file is distributed under the GPL v2 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: Just Log 1.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/just-log\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2023-09-10T12:00:00+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.7.1\n"
+"X-Domain: just-log\n"
+
+#. Plugin Name of the plugin
+#: just-log.php:110
+msgid "Just Log"
+msgstr ""
+
+#. Plugin URI of the plugin
+msgid "https://masiursiddiki.com/plugins/just-log/"
+msgstr ""
+
+#. Description of the plugin
+msgid "A simple yet powerful log viewer for WordPress with MySQL storage and real-time search capabilities"
+msgstr ""
+
+#. Author of the plugin
+msgid "Masiur Rahman Siddiki"
+msgstr ""
+
+#. Author URI of the plugin
+msgid "https://masiursiddiki.com"
+msgstr ""
+
+#: just-log.php:111
+msgid "Just Log Viewer"
+msgstr ""
+
+#: just-log.php:142
+msgid "Search logs..."
+msgstr ""
+
+#: just-log.php:146
+msgid "Search"
+msgstr ""
+
+#: just-log.php:150
+msgid "Reset"
+msgstr ""
+
+#: just-log.php:155
+msgid "Refresh"
+msgstr ""
+
+#: just-log.php:159
+msgid "Reset Logs"
+msgstr ""
+
+#: just-log.php:168
+msgid "Scroll to Top"
+msgstr ""
+
+#: just-log.php:174
+msgid "Scroll to Bottom"
+msgstr ""
+
+#: includes/ajax.php:95
+msgid "No logs found."
+msgstr ""
+
+#: includes/ajax.php:111
+msgid "From:"
+msgstr ""
+
+#: includes/ajax.php:255
+msgid "Page"
+msgstr ""
+
+#: includes/ajax.php:255
+msgid "of"
+msgstr ""
+
+#: includes/ajax.php:260
+msgid "Showing"
+msgstr ""
+
+#: includes/ajax.php:260
+msgid "log entries"
+msgstr ""

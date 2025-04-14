@@ -1,76 +1,85 @@
 === Just Log ===
-Contributors: masiur
-Tags: logging, debug, developer, mysql, tool
+Contributors: masiursiddiki
+Donate link: https://masiursiddiki.com/donate/
+Tags: log, debug, developer, debugging, development, logger
 Requires at least: 5.0
-Tested up to: 6.4
+Tested up to: 6.3
+Requires PHP: 7.0
 Stable tag: 1.0.0
-Requires PHP: 7.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-A simple, lightweight and efficient logging solution for WordPress with built-in log viewer and real-time search capabilities.
+A simple yet powerful log viewer for WordPress with MySQL storage and real-time search capabilities.
 
 == Description ==
 
-Just Log makes debugging WordPress applications easier by providing a clean interface to view, search, and manage logs. It uses your existing WordPress database for storage, ensuring maximum compatibility with all WordPress installations.
+Just Log provides WordPress developers with an easy way to log and view debug information. With a sleek UI and powerful search capabilities, it's the perfect debugging companion for your WordPress development workflow.
 
-= Key Features =
+### Key Features
 
-* **WordPress Database Integration**: Uses your existing MySQL database for reliable storage
-* **Real-time Search**: Quickly find logs using the built-in search functionality
-* **Clean Interface**: Modern UI that integrates with WordPress admin
-* **Contextual Logging**: Automatically captures file, line number, and function details
-* **JSON Formatting**: Pretty prints JSON data for better readability
-* **Easy Cleanup**: Clear logs with a single click when you're done debugging
-* **Universal Compatibility**: Works with any WordPress installation without additional extensions
+* **Simple Logging Function** - Use `just_log($variable)` anywhere in your code
+* **Beautiful UI** - Modern admin interface with card-based log display
+* **Real-time Search** - Quickly find logs using the search functionality  
+* **Smart Pagination** - Navigate through logs with intelligent page navigation
+* **Timezone Support** - View logs in server time and your local time
+* **Caller Information** - See exactly which file, function, and line generated each log
+* **JSON Formatting** - Automatic pretty printing for JSON data
+* **Log Clearing** - Reset logs with a single click when needed
 
-= Use Cases =
+### Developer Friendly
 
-* Debug complex WordPress applications
-* Trace user actions and system behaviors
-* Monitor plugin and theme activity
-* Track down hard-to-find issues
-* Log API and integration responses
-* Record variable states throughout execution
+Just Log is designed with developers in mind. The simple `just_log()` function accepts any variable type and automatically captures the context information.
 
-= Developer Friendly =
+```php
+// Log any variable type
+just_log('Simple text message');
+just_log($complex_object);
+just_log($array, $another_variable, $third_item);
+```
 
-The `just_log()` function works with any data type you throw at it. It can handle strings, arrays, objects, and automatically captures the context of where it was called from.
+### Privacy Notice
+
+This plugin doesn't collect any user data. All logs are stored locally in your WordPress database.
 
 == Installation ==
 
 1. Upload the `just-log` folder to the `/wp-content/plugins/` directory
 2. Activate the plugin through the 'Plugins' menu in WordPress
-3. Access the log viewer from the 'Just Log' menu in your WordPress admin area
+3. Use the `just_log()` function in your code to log data
+4. Access logs from the "Just Log" menu in your WordPress admin
 
 == Frequently Asked Questions ==
 
-= Does this plugin affect site performance? =
+= How do I log data? =
 
-Just Log is designed to be lightweight and only consumes resources when actively logging. It creates a separate table in your WordPress database to store logs efficiently.
+Simply use the `just_log()` function anywhere in your PHP code:
 
-= Can I use this on a production site? =
+```php
+just_log('This is my log message');
+just_log($my_variable);
+```
 
-Yes, but we recommend using it primarily for development and debugging purposes. You can activate it temporarily on production to troubleshoot specific issues.
+= Does this work with any data type? =
 
-= Where are the logs stored? =
+Yes! Just Log can handle strings, arrays, objects, and any other PHP data type.
 
-The logs are stored in a dedicated table in your WordPress database. This makes the plugin compatible with all WordPress installations.
+= Will logging slow down my site? =
 
-= Are there any special requirements for this plugin? =
+Just Log is designed to be lightweight. However, excessive logging in high-traffic areas could impact performance. We recommend using it primarily in development environments.
 
-No! Just Log works with any standard WordPress installation without requiring any special PHP extensions.
+= How do I clear all logs? =
 
-= Can I export the logs? =
+You can clear all logs by clicking the "Reset Logs" button in the Just Log admin interface.
 
-Currently, you can view logs in the admin interface. Export functionality may be added in future releases.
+= Does this work with multisite? =
+
+Yes, Just Log works with WordPress multisite installations. Each site has its own separate logs.
 
 == Screenshots ==
 
-1. Just Log admin interface
-2. Log entry detail view
-3. Search functionality in action
-4. Settings page
+1. Just Log main interface with search functionality
+2. Detailed log entries with file and function information
+3. JSON data displayed with syntax highlighting
 
 == Changelog ==
 
@@ -80,4 +89,4 @@ Currently, you can view logs in the admin interface. Export functionality may be
 == Upgrade Notice ==
 
 = 1.0.0 =
-Initial release of Just Log.
+Initial release of Just Log for WordPress.

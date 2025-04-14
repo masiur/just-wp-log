@@ -1,13 +1,19 @@
 <?php
 /**
  * Plugin Name: Just Log
- * Description: A simple log viewer for WordPress with MySQL storage and real-time search
- * Version: 1.0
- * Author: Masiur
- * Author URI: www.MasiurSiddiki.com
+ * Plugin URI: https://masiursiddiki.com/plugins/just-log/
+ * Description: A simple yet powerful log viewer for WordPress with MySQL storage and real-time search capabilities
+ * Version: 1.0.0
+ * Author: Masiur Rahman Siddiki
+ * Author URI: https://masiursiddiki.com
  * Text Domain: just-log
  * Domain Path: /languages
  * License: GPL v2 or later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
+ * Requires at least: 5.0
+ * Requires PHP: 7.0
+ *
+ * @package Just_Log
  */
 
 if (!defined('ABSPATH')) {
@@ -17,6 +23,12 @@ if (!defined('ABSPATH')) {
 define('JUST_LOG_PLUGIN_VERSION', '1.0');
 define('JUST_LOG_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('JUST_LOG_PLUGIN_URL', plugin_dir_url(__FILE__));
+
+// Load text domain for internationalization
+function just_log_load_textdomain() {
+    load_plugin_textdomain('just-log', false, dirname(plugin_basename(__FILE__)) . '/languages/');
+}
+add_action('plugins_loaded', 'just_log_load_textdomain');
 
 // Include required files
 require_once plugin_dir_path(__FILE__) . 'includes/database.php';
