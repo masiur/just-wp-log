@@ -46,13 +46,13 @@ class JustLogDatabase {
      * Insert a log entry
      */
     public function insert_log($timestamp, $message, $meta_data, $timezone = 'UTC') {
-        $this->wpdb->insert(
+        return $this->wpdb->insert(
             $this->table_name,
             array(
                 'timestamp' => $timestamp,
                 'timezone' => $timezone,
                 'message' => $message,
-                'meta_data' => json_encode($meta_data)
+                'meta_data' => is_string($meta_data) ? $meta_data : json_encode($meta_data)
             ),
             array(
                 '%s',
@@ -61,8 +61,6 @@ class JustLogDatabase {
                 '%s'
             )
         );
-        
-        return $this->wpdb->insert_id;
     }
     
     /**

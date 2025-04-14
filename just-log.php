@@ -33,6 +33,8 @@ add_action('plugins_loaded', 'just_log_load_textdomain');
 // Include required files
 require_once plugin_dir_path(__FILE__) . 'includes/database.php';
 require_once plugin_dir_path(__FILE__) . 'includes/ajax.php';
+require_once plugin_dir_path(__FILE__) . 'includes/settings.php';
+require_once plugin_dir_path(__FILE__) . 'includes/file-storage.php';
 
 // Register activation hook for database table creation
 register_activation_hook(__FILE__, 'just_log_activate');
@@ -44,15 +46,22 @@ function just_log_activate() {
 
 // Global logging function
 function just_log(...$data) {
-    static $db = null;
+    static $storage = null;
+    static $settings = null;
     
-    if ($db === null) {
-        $db = new JustLogDatabase();
+    if ($settings === null) {
+        $settings = new JustLogSettings();
+    }
+    
+    if ($storage === null) {
+        if ($settings->get_setting('storage_type') === 'file') {
+            $storage = new JustLogFileStorage($settings);
+        } else {
+            $storage = new JustLogDatabase();
+        }
     }
     
     $logMessages = [];
-    
-    // Iterate over each argument and prepare the log messages
     foreach ($data as $item) {
         $logMessages[] = json_encode($item, JSON_PRETTY_PRINT);
     }
@@ -74,17 +83,19 @@ function just_log(...$data) {
     $timezone = wp_timezone()->getName();
     $timestamp = current_time('mysql');
     
-    // Insert log into database
+    // Insert log using the selected storage method
     $message = implode(PHP_EOL, $logMessages);
-    $db->insert_log($timestamp, $message, $calledBy, $timezone);
+    $storage->insert_log($timestamp, $message, $calledBy, $timezone);
 }
 
 class JustLog {
     private $per_page = 10;
     private $db;
     private $ajax;
+    private $settings;
     
     public function __construct() {
+        $this->settings = new JustLogSettings();
         $this->db = new JustLogDatabase();
         $this->ajax = new JustLogAjax($this->db);
         
@@ -102,6 +113,15 @@ class JustLog {
             'just-log-viewer',
             array($this, 'display_logs'),
             'dashicons-list-view'
+        );
+        
+        add_submenu_page(
+            'just-log-viewer',
+            __('Settings', 'just-log'),
+            __('Settings', 'just-log'),
+            'manage_options',
+            'just-log-settings',
+            array($this->settings, 'render_settings_page')
         );
     }
     

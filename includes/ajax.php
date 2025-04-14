@@ -8,10 +8,18 @@ if (!defined('ABSPATH')) {
  */
 
 class JustLogAjax {
-    private $db;
+    private $storage;
+    private $settings;
     
     public function __construct($db) {
-        $this->db = $db;
+        $this->settings = new JustLogSettings();
+        
+        // Initialize storage based on settings
+        if ($this->settings->get_setting('storage_type') === 'file') {
+            $this->storage = new JustLogFileStorage($this->settings);
+        } else {
+            $this->storage = $db;
+        }
         
         // Add Ajax endpoints
         add_action('wp_ajax_just_log_search', array($this, 'search_logs'));
@@ -34,8 +42,15 @@ class JustLogAjax {
         $search = isset($_POST['search']) ? sanitize_text_field($_POST['search']) : '';
         $per_page = isset($_POST['per_page']) ? intval($_POST['per_page']) : 10;
         
-        // Get logs
-        $result = $this->db->get_logs($page, $per_page, $search);
+        // Get logs from the selected storage
+        $result = $this->storage->get_logs($page, $per_page, $search);
+        
+        if (isset($result['error'])) {
+            wp_send_json_error(array(
+                'message' => esc_html($result['error'])
+            ));
+        }
+        
         $logs = $result['logs'];
         $total = $result['total'];
         
@@ -58,17 +73,21 @@ class JustLogAjax {
             ));
         }
         
-        $result = $this->db->clear_logs();
+        $result = $this->storage->clear_logs();
         
-        if ($result !== false) {
-            wp_send_json_success(array(
-                'message' => 'Logs cleared successfully'
-            ));
-        } else {
+        if ($result === false) {
+            $error = method_exists($this->storage, 'get_last_error') ? 
+                    $this->storage->get_last_error() : 
+                    'Error clearing logs';
+                    
             wp_send_json_error(array(
-                'message' => 'Error clearing logs'
+                'message' => esc_html($error)
             ));
         }
+        
+        wp_send_json_success(array(
+            'message' => 'Logs cleared successfully'
+        ));
     }
     
     /**
@@ -84,7 +103,7 @@ class JustLogAjax {
         
         // Format each log
         foreach ($logs as $log) {
-            $meta = json_decode($log->meta_data, true);
+            $meta = is_string($log->meta_data) ? json_decode($log->meta_data, true) : $log->meta_data;
             $file = isset($meta['file']) ? $meta['file'] : 'N/A';
             $line = isset($meta['line']) ? $meta['line'] : 'N/A';
             $function = isset($meta['function']) ? $meta['function'] : 'N/A';

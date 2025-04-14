@@ -114,11 +114,19 @@
                     // Re-attach event listeners to the newly loaded pagination links
                     attachPaginationListeners();
                 } else {
-                    $('#jhl-log-container').html('<div class="notice notice-error"><p>Error loading logs</p></div>');
+                    $('#jhl-log-container').html(
+                        '<div class="notice notice-error"><p>' + 
+                        (response.data.message || 'Error loading logs') + 
+                        '</p></div>'
+                    );
                 }
             },
-            error: function() {
-                $('#jhl-log-container').html('<div class="notice notice-error"><p>Error loading logs</p></div>');
+            error: function(xhr, status, error) {
+                $('#jhl-log-container').html(
+                    '<div class="notice notice-error"><p>Error loading logs: ' + 
+                    (error || 'Unknown error') + 
+                    '</p></div>'
+                );
             }
         });
     }
