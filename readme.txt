@@ -1,9 +1,9 @@
 === Just Log ===
 Contributors: masiursiddiki
 Donate link: https://masiursiddiki.com/donate/
-Tags: log, debug, developer, debugging, development, logger
+Tags: logging, debug, development, developer, logger
 Requires at least: 5.0
-Tested up to: 6.3
+Tested up to: 6.8
 Requires PHP: 7.0
 Stable tag: 1.0.0
 License: GPLv2 or later

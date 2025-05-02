@@ -61,15 +61,20 @@ function just_log(...$data) {
         }
     }
     
-    $logMessages = [];
-    foreach ($data as $item) {
-        $logMessages[] = json_encode($item, JSON_PRETTY_PRINT);
-    }
-    
-    // Get the backtrace and caller details
+    // Get the backtrace and caller details first
     $backtrace = debug_backtrace();
     $caller = isset($backtrace[0]) ? $backtrace[0] : [];
     $caller1 = isset($backtrace[1]) ? $backtrace[1] : [];
+    
+    $logMessages = [];
+    // Add file path and line number comment and a add a new line for gap 
+    
+    $logMessages[] = "# " . (isset($caller['file']) ? $caller['file'] : 'N/A') . ", line " . (isset($caller['line']) ? $caller['line'] : 'N/A');
+    $logMessages[] = "\n";
+    
+    foreach ($data as $item) {
+        $logMessages[] = json_encode($item, JSON_PRETTY_PRINT);
+    }
     
     // Prepare the caller information
     $calledBy = [

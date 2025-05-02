@@ -38,9 +38,9 @@ class JustLogAjax {
         }
         
         // Get parameters
-        $page = isset($_POST['page']) ? intval($_POST['page']) : 1;
-        $search = isset($_POST['search']) ? sanitize_text_field($_POST['search']) : '';
-        $per_page = isset($_POST['per_page']) ? intval($_POST['per_page']) : 10;
+        $page = isset($_POST['page']) ? absint($_POST['page']) : 1;
+        $search = isset($_POST['search']) ? sanitize_text_field(wp_unslash($_POST['search'])) : '';
+        $per_page = isset($_POST['per_page']) ? absint($_POST['per_page']) : 10;
         
         // Get logs from the selected storage
         $result = $this->storage->get_logs($page, $per_page, $search);
@@ -103,7 +103,7 @@ class JustLogAjax {
         
         // Format each log
         foreach ($logs as $log) {
-            $meta = is_string($log->meta_data) ? json_decode($log->meta_data, true) : $log->meta_data;
+            $meta = json_decode($log->meta_data, true);
             $file = isset($meta['file']) ? $meta['file'] : 'N/A';
             $line = isset($meta['line']) ? $meta['line'] : 'N/A';
             $function = isset($meta['function']) ? $meta['function'] : 'N/A';
