@@ -51,8 +51,8 @@ class JustLogAjax {
             ));
         }
         
-        $logs = $result['logs'];
-        $total = $result['total'];
+        $logs = isset($result['items']) ? $result['items'] : array();
+        $total = isset($result['total']) ? $result['total'] : 0;
         
         // Format logs for display
         $html = $this->format_logs_html($logs, $page, $per_page, $total, $search);
@@ -120,18 +120,21 @@ class JustLogAjax {
             // Get human time diff
             $human_time_diff = $this->get_human_time_diff_from_datetime($datetime);
             
+            // if ($function != 'N/A') {
+            //     if ($class != 'N/A') {
+            //         $line = $line . ' in ' . basename(str_replace('\\', '/', $class)) . '::' . $function;
+            //     }
+            // }
+            
+            // Add the file/line info as a colored line at the top
             $html .= '<div class="jhl-log-entry">';
             $html .= '<div class="jhl-log-time">' . esc_html($formatted_date) . 
                      ' <span class="jhl-log-time-diff">(' . esc_html($human_time_diff) . ')</span>' . 
                      '<span class="jhl-log-time-local" data-timestamp="' . $timestamp_utc . '"></span></div>';
             
-            if ($class) {
-                $html .= '<div class="jhl-log-meta">From: ' . esc_html($class . '::' . $function) . '() at ' . esc_html(basename($file)) . ':' . esc_html($line) . '</div>';
-            } else {
-                $html .= '<div class="jhl-log-meta">From: ' . esc_html($function) . '() at ' . esc_html(basename($file)) . ':' . esc_html($line) . '</div>';
-            }
-            
-            // Display the log content
+            $html .= '<div class="jhl-log-fileline" style="color:#0073aa;padding-bottom:2px;"># ' . esc_html($file) . ', line ' . esc_html($line) . '</div>';
+
+                     // Display the log content
             $html .= '<div class="jhl-log-content">';
             $html .= '<pre class="jhl-log-data">' . esc_html($log->message) . '</pre>';
             $html .= '</div>';

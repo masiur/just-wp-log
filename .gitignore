@@ -1,9 +1,26 @@
+# Development files
+node_modules/
+npm-debug.log
+yarn-debug.log*
+yarn-error.log*
+.env
+
+# IDE files
+.idea/
+.vscode/
+
+# Build files
+/build/
+/dist/
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+
 # Operating System files
 .DS_Store
 Thumbs.db
 ehthumbs.db
 Desktop.ini
-
-# IDE files
-.idea/
-.vscode/
