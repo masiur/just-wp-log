@@ -1,6 +1,5 @@
 === Just Log ===
-Contributors: masiursiddiki
-Donate link: https://masiursiddiki.com/donate/
+Contributors: MasiurSiddiki
 Tags: logging, debug, development, developer, logger
 Requires at least: 5.0
 Tested up to: 6.8

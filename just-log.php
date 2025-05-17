@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Just Log
- * Plugin URI: https://masiursiddiki.com/plugins/just-log/
+ * Plugin URI: https://masiursiddiki.com/just-log/
  * Description: A simple yet powerful log viewer for WordPress with MySQL storage and real-time search capabilities
  * Version: 1.0.0
  * Author: Masiur Rahman Siddiki
