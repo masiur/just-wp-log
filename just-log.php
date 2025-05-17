@@ -217,8 +217,8 @@ class JustLog {
 
     public function changeFooter()
     {
-
-        if ($_GET['page'] == 'just-log-viewer' || $_GET['page'] == 'just-log-settings') {
+        $page = isset($_GET['page']) ? $_GET['page'] : '';
+        if ($page == 'just-log-viewer' || $page == 'just-log-settings') {
 
             add_filter('admin_footer_text', function ($content) {
                 $url = 'https://MasiurSiddiki.com';
