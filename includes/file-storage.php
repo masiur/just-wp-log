@@ -20,6 +20,7 @@ class JustLogFileStorage {
     
     private function validate_file_path() {
         if (empty($this->file_path)) {
+            // translators: This is shown when the log file path is not set.
             $this->error = esc_html__('Log file path is not set', 'just-log');
             return false;
         }
@@ -34,7 +35,7 @@ class JustLogFileStorage {
         // Check directory permissions and existence
         if (!$wp_filesystem->exists($dir)) {
             if (!wp_mkdir_p($dir)) {
-                // Translators: %s is the directory path that cannot be created
+                // translators: %s is the directory path that cannot be created
                 $this->error = sprintf(
                     esc_html__('Unable to create log directory: %s', 'just-log'),
                     esc_html($dir)
@@ -47,7 +48,7 @@ class JustLogFileStorage {
             // Try to fix directory permissions
             $wp_filesystem->chmod($dir, 0755);
             if (!$wp_filesystem->is_writable($dir)) {
-                // Translators: First %s is the directory path, second %s is the permission value
+                // translators: 1: directory path, 2: permission value
                 $this->error = sprintf(
                     esc_html__('Directory %s is not writable. Permissions: %s', 'just-log'),
                     esc_html($dir),
@@ -60,7 +61,7 @@ class JustLogFileStorage {
         // Handle file creation and permissions
         if (!$wp_filesystem->exists($this->file_path)) {
             if (!$wp_filesystem->put_contents($this->file_path, '')) {
-                // Translators: First %s is the file path, second %s is the error message
+                // translators: %s is the file path that cannot be created
                 $this->error = sprintf(
                     esc_html__('Cannot create file %s.', 'just-log'),
                     esc_html($this->file_path)
@@ -74,7 +75,7 @@ class JustLogFileStorage {
             // Try to fix file permissions
             $wp_filesystem->chmod($this->file_path, 0644);
             if (!$wp_filesystem->is_writable($this->file_path)) {
-                // Translators: First %s is the file path, second %s is the permission value
+                // translators: 1: file path, 2: permission value
                 $this->error = sprintf(
                     esc_html__('File %s is not writable. Permissions: %s', 'just-log'),
                     esc_html($this->file_path),
@@ -96,7 +97,7 @@ class JustLogFileStorage {
             $dir = dirname($this->file_path);
             if (!$wp_filesystem->exists($dir)) {
                 if (!wp_mkdir_p($dir)) {
-                    // Translators: %s is the directory path that cannot be created
+                    // translators: %s is the directory path that cannot be created
                     throw new Exception(sprintf(
                         esc_html__('Unable to create log directory: %s', 'just-log'),
                         esc_html($dir)
@@ -105,7 +106,7 @@ class JustLogFileStorage {
                 $wp_filesystem->chmod($dir, 0755);
             }
             if (!$wp_filesystem->put_contents($this->file_path, '')) {
-                // Translators: %s is the file path that cannot be created
+                // translators: %s is the file path that cannot be created
                 throw new Exception(sprintf(
                     esc_html__('Unable to create log file: %s', 'just-log'),
                     esc_html($this->file_path)
@@ -115,7 +116,7 @@ class JustLogFileStorage {
         }
         
         if (!$wp_filesystem->is_writable($this->file_path)) {
-            // Translators: %s is the file path that is not writable
+            // translators: %s is the file path that is not writable
             throw new Exception(sprintf(
                 esc_html__('Log file is not writable: %s. Please check permissions.', 'just-log'),
                 esc_html($this->file_path)
