@@ -39,9 +39,21 @@ require_once plugin_dir_path(__FILE__) . 'includes/file-storage.php';
 // Register activation hook for database table creation
 register_activation_hook(__FILE__, 'just_log_activate');
 
+// Register deactivation hook to clear logs from both storage types
+register_deactivation_hook(__FILE__, 'just_log_deactivate');
+
 function just_log_activate() {
     // Force database table creation on activation
     $db = new JustLogDatabase();
+}
+
+function just_log_deactivate() {
+    // Always clear both database and file logs on deactivation
+    $db = new JustLogDatabase();
+    $db->clear_logs();
+    $settings = new JustLogSettings();
+    $fileStorage = new JustLogFileStorage($settings);
+    $fileStorage->clear_logs();
 }
 
 // Global logging function
@@ -69,8 +81,8 @@ function just_log(...$data) {
     $logMessages = [];
     // Add file path and line number comment and a add a new line for gap 
     
-    $logMessages[] = "# " . (isset($caller['file']) ? $caller['file'] : 'N/A') . ", line " . (isset($caller['line']) ? $caller['line'] : 'N/A');
-    $logMessages[] = "\n";
+    // $logMessages[] = "# " . (isset($caller['file']) ? $caller['file'] : 'N/A') . ", line " . (isset($caller['line']) ? $caller['line'] : 'N/A');
+    // $logMessages[] = "\n";
     
     foreach ($data as $item) {
         $logMessages[] = json_encode($item, JSON_PRETTY_PRINT);
@@ -198,33 +210,35 @@ class JustLog {
                     </svg>
                 </button>
             </div>
-            
-            <!-- <div class="jhl-footer">
-                Just Log v1.1.0 | Created with <span style="color: #e25555;">♥</span> by Masiur
-            </div> -->
+
         </div>
         <?php
     }
 
     public function changeFooter()
     {
-        add_filter('admin_footer_text', function ($content) {
-            $url = 'https://MasiurSiddiki.com';
-            $url = esc_url($url);   
-        
 
-            if (defined('JUST_LOG_PLUGIN_VERSION')) {
-                return 'Just Log | Created with <span style="color: #e25555;">♥</span> by <a href="https://MasiurSiddiki.com" target="_blank">Masiur Rahman Siddiki</a>';
-            }
-            return $content;
-        });
+        if ($_GET['page'] == 'just-log-viewer' || $_GET['page'] == 'just-log-settings') {
 
-        add_filter('update_footer', function ($text) {
-            if (defined('JUST_LOG_PLUGIN_VERSION')) {
-                return JUST_LOG_PLUGIN_VERSION;
-            }
-            return '';
-        });
+            add_filter('admin_footer_text', function ($content) {
+                $url = 'https://MasiurSiddiki.com';
+                $url = esc_url($url);   
+            
+
+                if (defined('JUST_LOG_PLUGIN_VERSION')) {
+                    return 'Just Log | Created with <span style="color: #e25555;">♥</span> by <a href="https://MasiurSiddiki.com" target="_blank">Masiur Rahman Siddiki</a>';
+                }
+                return $content;
+            }, 99);
+
+            add_filter('update_footer', function ($text) {
+                if (defined('JUST_LOG_PLUGIN_VERSION')) {
+                    return JUST_LOG_PLUGIN_VERSION;
+                }
+                return '';
+            }, 99);
+
+        }
     }
 }
 

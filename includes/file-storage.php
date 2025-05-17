@@ -19,26 +19,108 @@ class JustLogFileStorage {
     }
     
     private function validate_file_path() {
-        if (!$this->file_path) {
+        if (empty($this->file_path)) {
+            $this->error = esc_html__('Log file path is not set', 'just-log');
             return false;
         }
+        
+        // Initialize WP_Filesystem
+        require_once(ABSPATH . 'wp-admin/includes/file.php');
+        WP_Filesystem();
+        global $wp_filesystem;
         
         $dir = dirname($this->file_path);
         
-        // Check if directory exists or can be created
-        if (!file_exists($dir) && !wp_mkdir_p($dir)) {
-            return false;
-        }
-        
-        // Create file if it doesn't exist
-        if (!file_exists($this->file_path)) {
-            if (file_put_contents($this->file_path, '') === false) {
+        // Check directory permissions and existence
+        if (!$wp_filesystem->exists($dir)) {
+            if (!wp_mkdir_p($dir)) {
+                // Translators: %s is the directory path that cannot be created
+                $this->error = sprintf(
+                    esc_html__('Unable to create log directory: %s', 'just-log'),
+                    esc_html($dir)
+                );
                 return false;
             }
         }
         
-        // Check if file is writable
-        return is_writable($this->file_path);
+        if (!$wp_filesystem->is_writable($dir)) {
+            // Try to fix directory permissions
+            $wp_filesystem->chmod($dir, 0755);
+            if (!$wp_filesystem->is_writable($dir)) {
+                // Translators: First %s is the directory path, second %s is the permission value
+                $this->error = sprintf(
+                    esc_html__('Directory %s is not writable. Permissions: %s', 'just-log'),
+                    esc_html($dir),
+                    esc_html(substr(sprintf('%o', $wp_filesystem->getchmod($dir)), -4))
+                );
+                return false;
+            }
+        }
+        
+        // Handle file creation and permissions
+        if (!$wp_filesystem->exists($this->file_path)) {
+            if (!$wp_filesystem->put_contents($this->file_path, '')) {
+                // Translators: First %s is the file path, second %s is the error message
+                $this->error = sprintf(
+                    esc_html__('Cannot create file %s.', 'just-log'),
+                    esc_html($this->file_path)
+                );
+                return false;
+            }
+            $wp_filesystem->chmod($this->file_path, 0644);
+        }
+        
+        if (!$wp_filesystem->is_writable($this->file_path)) {
+            // Try to fix file permissions
+            $wp_filesystem->chmod($this->file_path, 0644);
+            if (!$wp_filesystem->is_writable($this->file_path)) {
+                // Translators: First %s is the file path, second %s is the permission value
+                $this->error = sprintf(
+                    esc_html__('File %s is not writable. Permissions: %s', 'just-log'),
+                    esc_html($this->file_path),
+                    esc_html(substr(sprintf('%o', $wp_filesystem->getchmod($this->file_path)), -4))
+                );
+                return false;
+            }
+        }
+        
+        return true;
+    }
+    
+    private function ensure_file_exists() {
+        require_once(ABSPATH . 'wp-admin/includes/file.php');
+        WP_Filesystem();
+        global $wp_filesystem;
+        
+        if (!$wp_filesystem->exists($this->file_path)) {
+            $dir = dirname($this->file_path);
+            if (!$wp_filesystem->exists($dir)) {
+                if (!wp_mkdir_p($dir)) {
+                    // Translators: %s is the directory path that cannot be created
+                    throw new Exception(sprintf(
+                        esc_html__('Unable to create log directory: %s', 'just-log'),
+                        esc_html($dir)
+                    ));
+                }
+                $wp_filesystem->chmod($dir, 0755);
+            }
+            if (!$wp_filesystem->put_contents($this->file_path, '')) {
+                // Translators: %s is the file path that cannot be created
+                throw new Exception(sprintf(
+                    esc_html__('Unable to create log file: %s', 'just-log'),
+                    esc_html($this->file_path)
+                ));
+            }
+            $wp_filesystem->chmod($this->file_path, 0644);
+        }
+        
+        if (!$wp_filesystem->is_writable($this->file_path)) {
+            // Translators: %s is the file path that is not writable
+            throw new Exception(sprintf(
+                esc_html__('Log file is not writable: %s. Please check permissions.', 'just-log'),
+                esc_html($this->file_path)
+            ));
+        }
     }
     
     public function insert_log($timestamp, $message, $meta_data, $timezone = 'UTC') {
@@ -46,32 +128,30 @@ class JustLogFileStorage {
             return false;
         }
         
+        $this->ensure_file_exists();
+        
+        require_once(ABSPATH . 'wp-admin/includes/file.php');
+        WP_Filesystem();
+        global $wp_filesystem;
+        
         $log_entry = json_encode([
             'timestamp' => $timestamp,
             'timezone' => $timezone,
             'message' => $message,
-            'meta_data' => is_string($meta_data) ? $meta_data : json_encode($meta_data)
-        ]);
+            'meta_data' => $meta_data
+        ]) . "\n";
         
-        if ($log_entry === false) {
-            $this->error = 'Failed to encode log data';
-            return false;
-        }
-        
-        $log_entry .= "\n";
-        
-        if (file_put_contents($this->file_path, $log_entry, FILE_APPEND | LOCK_EX) === false) {
-            $this->error = 'Failed to write to log file';
-            return false;
-        }
-        
-        return true;
+        return $wp_filesystem->put_contents($this->file_path, $log_entry, FS_CHMOD_FILE, FILE_APPEND);
     }
     
     public function get_logs($page = 1, $per_page = 10, $search = '') {
-        if ($this->error || !file_exists($this->file_path)) {
+        require_once(ABSPATH . 'wp-admin/includes/file.php');
+        WP_Filesystem();
+        global $wp_filesystem;
+        
+        if ($this->error || !$wp_filesystem->exists($this->file_path)) {
             return [
-                'logs' => [],
+                'items' => [],
                 'total' => 0,
                 'error' => $this->error ?: 'Log file not found'
             ];
@@ -82,20 +162,26 @@ class JustLogFileStorage {
             $total = 0;
             $start = ($page - 1) * $per_page;
             
-            $handle = fopen($this->file_path, 'r');
-            if ($handle === false) {
-                throw new Exception('Failed to open log file');
+            // Read the entire file
+            $content = $wp_filesystem->get_contents($this->file_path);
+            if ($content === false) {
+                throw new Exception('Failed to read log file');
             }
             
+            // Process each line
             $temp_logs = [];
-            while (($line = fgets($handle)) !== false) {
+            $lines = explode("\n", $content);
+            foreach ($lines as $line) {
+                if (empty(trim($line))) {
+                    continue;
+                }
+                
                 $log = json_decode($line);
                 if ($log && (!$search || $this->log_matches_search($log, $search))) {
                     $temp_logs[] = $log;
                     $total++;
                 }
             }
-            fclose($handle);
             
             // Sort by timestamp in descending order
             usort($temp_logs, function($a, $b) {
@@ -106,14 +192,14 @@ class JustLogFileStorage {
             $logs = array_slice($temp_logs, $start, $per_page);
             
             return [
-                'logs' => $logs,
+                'items' => $logs,
                 'total' => $total
             ];
             
         } catch (Exception $e) {
             $this->error = $e->getMessage();
             return [
-                'logs' => [],
+                'items' => [],
                 'total' => 0,
                 'error' => $this->error
             ];
@@ -138,7 +224,16 @@ class JustLogFileStorage {
             return false;
         }
         
-        if (file_put_contents($this->file_path, '') === false) {
+        require_once(ABSPATH . 'wp-admin/includes/file.php');
+        WP_Filesystem();
+        global $wp_filesystem;
+
+        // If file does not exist, treat as already cleared (success)
+        if (!$wp_filesystem->exists($this->file_path)) {
+            return true;
+        }
+        
+        if (!$wp_filesystem->put_contents($this->file_path, '')) {
             $this->error = 'Failed to clear log file';
             return false;
         }

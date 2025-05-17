@@ -103,7 +103,16 @@ class JustLogAjax {
         
         // Format each log
         foreach ($logs as $log) {
-            $meta = json_decode($log->meta_data, true);
+            // Handle meta_data: decode if string, use as-is if already array/object
+            if (isset($log->meta_data) && is_string($log->meta_data)) {
+                $meta = json_decode($log->meta_data, true);
+            } else if (isset($log->meta_data) && is_array($log->meta_data)) {
+                $meta = $log->meta_data;
+            } else if (isset($log->meta_data) && is_object($log->meta_data)) {
+                $meta = (array)$log->meta_data;
+            } else {
+                $meta = [];
+            }
             $file = isset($meta['file']) ? $meta['file'] : 'N/A';
             $line = isset($meta['line']) ? $meta['line'] : 'N/A';
             $function = isset($meta['function']) ? $meta['function'] : 'N/A';

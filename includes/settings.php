@@ -11,7 +11,7 @@ class JustLogSettings {
     public function __construct() {
         $this->settings = get_option(self::OPTION_KEY, [
             'storage_type' => 'mysql', // mysql or file
-            'file_path' => WP_CONTENT_DIR . '/logs/jl.txt'
+            'file_path' => JUST_LOG_PLUGIN_DIR . '/logs/jl.txt'
         ]);
         
         add_action('admin_init', array($this, 'register_settings'));
@@ -26,29 +26,40 @@ class JustLogSettings {
         $file_path = $this->get_setting('file_path');
         if (!$file_path) return;
         
+        require_once(ABSPATH . 'wp-admin/includes/file.php');
+        WP_Filesystem();
+        global $wp_filesystem;
+        
         $dir = dirname($file_path);
-        if (!file_exists($dir)) {
+        if (!$wp_filesystem->exists($dir)) {
             wp_mkdir_p($dir);
         }
         
-        // Create empty file if it doesn't exist
-        if (!file_exists($file_path)) {
-            file_put_contents($file_path, '');
+        if (!$wp_filesystem->exists($file_path)) {
+            $wp_filesystem->put_contents($file_path, '');
         }
         
-        // Check file permissions
-        if (!is_writable($file_path)) {
-            add_action('admin_notices', function() {
-                echo '<div class="notice notice-error"><p>' . 
-                     sprintf(__('Just Log: Log file is not writable. Please check permissions for: %s', 'just-log'), 
-                     esc_html($this->get_setting('file_path'))) . 
-                     '</p></div>';
-            });
+        if (!$wp_filesystem->is_writable($file_path)) {
+            if (function_exists('add_action') && function_exists('__') && function_exists('esc_html')) {
+                add_action('admin_notices', function() use ($file_path) {
+                    /* translators: %s: File path that is not writable */
+                    $message = __('Just Log: Log file is not writable. Please check permissions for: %s', 'just-log');
+                    echo wp_kses_post('<div class="notice notice-error"><p>' . 
+                         sprintf($message, esc_html($this->get_setting('file_path'))) . 
+                         '</p></div>');
+                });
+            }
         }
     }
     
     public function register_settings() {
-        register_setting('just_log_settings', self::OPTION_KEY);
+        register_setting(
+            'just_log_settings', 
+            self::OPTION_KEY,
+            array(
+                'sanitize_callback' => array($this, 'sanitize_settings')
+            )
+        );
         
         add_settings_section(
             'just_log_storage_section',
@@ -73,17 +84,28 @@ class JustLogSettings {
             'just_log_storage_section'
         );
     }
+
+    public function sanitize_settings($input) {
+        $sanitized = array();
+        if (isset($input['storage_type'])) {
+            $sanitized['storage_type'] = sanitize_text_field($input['storage_type']);
+        }
+        if (isset($input['file_path'])) {
+            $sanitized['file_path'] = sanitize_text_field($input['file_path']);
+        }
+        return $sanitized;
+    }
     
     public function storage_section_callback() {
-        echo '<p>' . __('Configure how Just Log stores your log data.', 'just-log') . '</p>';
+        echo wp_kses_post('<p>' . esc_html__('Configure how Just Log stores your log data.', 'just-log') . '</p>');
     }
     
     public function storage_type_callback() {
         $type = isset($this->settings['storage_type']) ? $this->settings['storage_type'] : 'mysql';
         ?>
-        <select name="<?php echo self::OPTION_KEY; ?>[storage_type]" id="storage_type">
-            <option value="mysql" <?php selected($type, 'mysql'); ?>><?php _e('MySQL Database', 'just-log'); ?></option>
-            <option value="file" <?php selected($type, 'file'); ?>><?php _e('File System', 'just-log'); ?></option>
+        <select name="<?php echo esc_attr(self::OPTION_KEY); ?>[storage_type]" id="storage_type">
+            <option value="mysql" <?php selected($type, 'mysql'); ?>><?php esc_html_e('MySQL Database', 'just-log'); ?></option>
+            <option value="file" <?php selected($type, 'file'); ?>><?php esc_html_e('File System', 'just-log'); ?></option>
         </select>
         <?php
     }
@@ -91,8 +113,8 @@ class JustLogSettings {
     public function file_path_callback() {
         $path = isset($this->settings['file_path']) ? $this->settings['file_path'] : WP_CONTENT_DIR . '/logs/jl.txt';
         ?>
-        <input type="text" name="<?php echo self::OPTION_KEY; ?>[file_path]" value="<?php echo esc_attr($path); ?>" class="regular-text">
-        <p class="description"><?php _e('Full path where log file will be stored when using file storage.', 'just-log'); ?></p>
+        <input type="text" name="<?php echo esc_attr(self::OPTION_KEY); ?>[file_path]" value="<?php echo esc_attr($path); ?>" class="regular-text">
+        <p class="description"><?php esc_html_e('Full path where log file will be stored when using file storage.', 'just-log'); ?></p>
         <?php
     }
     
@@ -103,7 +125,7 @@ class JustLogSettings {
     public function render_settings_page() {
         ?>
         <div class="wrap">
-            <h1><?php _e('Just Log Settings', 'just-log'); ?></h1>
+            <h1><?php esc_html_e('Just Log Settings', 'just-log'); ?></h1>
             <form method="post" action="options.php">
                 <?php
                 settings_fields('just_log_settings');
