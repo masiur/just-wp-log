@@ -129,11 +129,6 @@ class JustLogAjax {
             // Get human time diff
             $human_time_diff = $this->get_human_time_diff_from_datetime($datetime);
             
-            // if ($function != 'N/A') {
-            //     if ($class != 'N/A') {
-            //         $line = $line . ' in ' . basename(str_replace('\\', '/', $class)) . '::' . $function;
-            //     }
-            // }
             
             // Add the file/line info as a colored line at the top
             $html .= '<div class="jhl-log-entry">';
@@ -159,7 +154,7 @@ class JustLogAjax {
             
             // Previous page
             if ($current_page > 1) {
-                $html .= '<a href="javascript:void(0);" class="jhl-page-numbers prev" data-page="'. ($current_page - 1) .'" aria-label="Previous page">« Prev</a>';
+                $html .= '<a href="javascript:void(0);" class="jhl-page-numbers prev" data-page="' . esc_attr($current_page - 1) . '" aria-label="Previous page">« Prev</a>';
             } else {
                 $html .= '<span class="jhl-page-numbers prev disabled" aria-disabled="true">« Prev</span>';
             }
@@ -167,9 +162,9 @@ class JustLogAjax {
             // First page always visible
             $firstPageClass = $current_page === 1 ? 'current' : '';
             if ($current_page === 1) {
-                $html .= '<span class="jhl-page-numbers '. $firstPageClass .'" aria-current="page">1</span>';
+                $html .= '<span class="jhl-page-numbers ' . esc_attr($firstPageClass) . '" aria-current="page">' . esc_html('1') . '</span>';
             } else {
-                $html .= '<a href="javascript:void(0);" class="jhl-page-numbers" data-page="1">1</a>';
+                $html .= '<a href="javascript:void(0);" class="jhl-page-numbers" data-page="1">' . esc_html('1') . '</a>';
             }
             
             // Ellipsis after first page
@@ -185,9 +180,9 @@ class JustLogAjax {
                 if ($i === 1 || $i === $total_pages) continue; // Skip first and last pages as they're always shown
                 
                 if ($i === $current_page) {
-                    $html .= '<span class="jhl-page-numbers current" aria-current="page">'. $i .'</span>';
+                    $html .= '<span class="jhl-page-numbers current" aria-current="page">' . esc_html($i) . '</span>';
                 } else {
-                    $html .= '<a href="javascript:void(0);" class="jhl-page-numbers" data-page="'. $i .'">'. $i .'</a>';
+                    $html .= '<a href="javascript:void(0);" class="jhl-page-numbers" data-page="' . esc_attr($i) . '">' . esc_html($i) . '</a>';
                 }
             }
             
@@ -200,15 +195,15 @@ class JustLogAjax {
             if ($total_pages > 1) {
                 $lastPageClass = $current_page === $total_pages ? 'current' : '';
                 if ($current_page === $total_pages) {
-                    $html .= '<span class="jhl-page-numbers '. $lastPageClass .'" aria-current="page">'. $total_pages .'</span>';
+                    $html .= '<span class="jhl-page-numbers ' . esc_attr($lastPageClass) . '" aria-current="page">' . esc_html($total_pages) . '</span>';
                 } else {
-                    $html .= '<a href="javascript:void(0);" class="jhl-page-numbers" data-page="'. $total_pages .'">'. $total_pages .'</a>';
+                    $html .= '<a href="javascript:void(0);" class="jhl-page-numbers" data-page="' . esc_attr($total_pages) . '">' . esc_html($total_pages) . '</a>';
                 }
             }
             
             // Next page
             if ($current_page < $total_pages) {
-                $html .= '<a href="javascript:void(0);" class="jhl-page-numbers next" data-page="'. ($current_page + 1) .'" aria-label="Next page">Next »</a>';
+                $html .= '<a href="javascript:void(0);" class="jhl-page-numbers next" data-page="' . esc_attr($current_page + 1) . '" aria-label="Next page">Next »</a>';
             } else {
                 $html .= '<span class="jhl-page-numbers next disabled" aria-disabled="true">Next »</span>';
             }
@@ -216,13 +211,23 @@ class JustLogAjax {
             $html .= '</div>';
             
             // Page info
-            $html .= '<div class="jhl-page-info">Page '. $current_page .' of '. $total_pages .'</div>';
+            $html .= '<div class="jhl-page-info">' . sprintf(
+                /* translators: 1: current page, 2: total pages */
+                esc_html__('Page %1$s of %2$s', 'just-log'),
+                esc_html($current_page),
+                esc_html($total_pages)
+            ) . '</div>';
             
             $html .= '</div>';
         }
         
         // Add total count info
-        $html .= '<div class="jhl-results-count">Showing '. count($logs) .' of '. $total .' log entries</div>';
+        $html .= '<div class="jhl-results-count">' . sprintf(
+            /* translators: 1: number of logs shown, 2: total logs */
+            esc_html__('Showing %1$s of %2$s log entries', 'just-log'),
+            esc_html(count($logs)),
+            esc_html($total)
+        ) . '</div>';
         
         return $html;
     }

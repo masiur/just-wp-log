@@ -9,9 +9,11 @@ class JustLogSettings {
     private $settings;
     
     public function __construct() {
+        $upload_dir = wp_upload_dir();
+        $default_file_path = trailingslashit($upload_dir['basedir']) . 'just-log/jl.txt';
         $this->settings = get_option(self::OPTION_KEY, [
             'storage_type' => 'mysql', // mysql or file
-            'file_path' => JUST_LOG_PLUGIN_DIR . '/logs/jl.txt'
+            'file_path' => $default_file_path
         ]);
         
         add_action('admin_init', array($this, 'register_settings'));
@@ -111,7 +113,9 @@ class JustLogSettings {
     }
     
     public function file_path_callback() {
-        $path = isset($this->settings['file_path']) ? $this->settings['file_path'] : WP_CONTENT_DIR . '/logs/jl.txt';
+        $upload_dir = wp_upload_dir();
+        $default_file_path = trailingslashit($upload_dir['basedir']) . 'just-log/jl.txt';
+        $path = isset($this->settings['file_path']) ? $this->settings['file_path'] : $default_file_path;
         ?>
         <input type="text" name="<?php echo esc_attr(self::OPTION_KEY); ?>[file_path]" value="<?php echo esc_attr($path); ?>" class="regular-text">
         <p class="description"><?php esc_html_e('Full path where log file will be stored when using file storage.', 'just-log'); ?></p>

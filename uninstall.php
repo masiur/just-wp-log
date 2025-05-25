@@ -19,9 +19,7 @@ $cache_key = 'just_log_uninstall_' . $table_name;
 wp_cache_set($cache_key, true, '', 300);
 
 // Drop the table
-$wpdb->query(
-    $wpdb->prepare("DROP TABLE IF EXISTS %i", $table_name)
-);
+$wpdb->query("DROP TABLE IF EXISTS {$table_name}");
 
 // Clean up options (if any were added in the future)
 delete_option('just_log_version');

